@@ -47,7 +47,7 @@ impl Decode for SpawnKind {
     }
 }
 
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub struct ItemSpawn {
     item_kind_hash: u64,
     kind: SpawnKind
