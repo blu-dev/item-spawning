@@ -110,3 +110,39 @@ impl Decode for StateQuery {
         }    
     }
 }
+
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum StateQueryResponse {
+    LastSummonFrame(u32),
+    IsFighterExist(bool)
+}
+
+impl Encode for StateQueryResponse {
+    fn encode<W>(&self, writer: &mut W) -> io::Result<()>
+    where W: Write + Seek
+    {
+        match self {
+            Self::LastSummonFrame(frame) => {
+                0u8.encode(writer)?;
+                frame.encode(writer)
+            },
+            Self::IsFighterExist(exists) => {
+                1u8.encode(writer)?;
+                exists.encode(writer)
+            }
+        }    
+    }
+}
+
+impl Decode for StateQueryResponse {
+    fn decode<R>(reader: &mut R) -> io::Result<Self>
+    where R: Read + Seek
+    {
+        let tag = u8::decode(reader)?;
+        match tag {
+            0 => u32::decode(reader).map(Self::LastSummonFrame),
+            1 => bool::decode(reader).map(Self::IsFighterExist),
+            _ => Err(io::Error::new(io::ErrorKind::InvalidData, format!("StateQueryResponse tag '{}' is out of bounds for StateQueryResponse!", tag)))
+        } 
+    }
+}
